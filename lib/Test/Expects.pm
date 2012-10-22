@@ -4,15 +4,20 @@ use warnings;
 use 5.010001;
 our $VERSION = '0.01';
 
-use parent qw/Exporter Test::Builder::Module/;
-
-our $CLASS = __PACKAGE__;
+use parent qw/Exporter/;
 
 our @EXPORT = qw/expect/;
 
 sub expect($) {
-    return Test::Expects->new(@_);
+    return Test::Expects::Impl->new(@_);
 }
+
+package # hide from pause
+    Test::Expects::Impl;
+
+use parent qw/Test::Builder::Module/;
+
+our $CLASS = __PACKAGE__;
 
 use Carp ();
 use Try::Tiny;
@@ -277,7 +282,7 @@ our $CLASS = __PACKAGE__;
 
 use Try::Tiny;
 
-sub ONLY() { Test::Expects::ONLY }
+sub ONLY() { Test::Expects::Impl::ONLY }
 
 sub new {
     my $class = shift;

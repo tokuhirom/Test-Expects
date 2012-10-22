@@ -4,19 +4,7 @@ use warnings;
 use utf8;
 use parent qw/Exporter/;
 
-our @EXPORT = qw/setup mkres test/;
-
-sub setup {
-    my $out;
-    my $builder = Test::Builder->create;
-    $builder->output(\$out);
-    $builder->failure_output(\my $err);
-    $builder->todo_output(\my $todo);
-    *Test::Expects::builder = sub { $builder };
-    *Test::Expects::Not::builder = sub { $builder };
-    *Test::Expects::Impl::Not::builder = sub { $builder };
-    return \$out;
-}
+our @EXPORT = qw/mkres test/;
 
 sub test {
     my $out;
@@ -24,8 +12,7 @@ sub test {
     $builder->output(\$out);
     $builder->failure_output(\my $err);
     $builder->todo_output(\my $todo);
-    *Test::Expects::builder = sub { $builder };
-    *Test::Expects::Not::builder = sub { $builder };
+    *Test::Expects::Impl::builder = sub { $builder };
     *Test::Expects::Impl::Not::builder = sub { $builder };
     return bless {out => \$out}, 't::Util::Tester'; 
 }
