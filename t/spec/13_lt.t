@@ -8,9 +8,9 @@ my $tester = test();
 {
     package sandbox;
     use Test::Expects;
-    expect(4)->to_be_less_than(1);
-    expect(4)->to_be_less_than(4);
-    expect(4)->to_be_less_than(5);
+    expect(4)->to_be_below(1);
+    expect(4)->to_be_below(4);
+    expect(4)->to_be_below(5);
 }
 $tester->out_is(qw/
     0 0 1

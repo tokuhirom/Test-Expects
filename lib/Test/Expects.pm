@@ -257,14 +257,14 @@ sub AUTOLOAD {
     }
 }
 
-sub greater_than {
+sub above {
     my ($self, $stuff) = @_;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
     $builder->ok($self->[0] > $stuff);
 }
 
-sub less_than {
+sub below {
     my ($self, $stuff) = @_;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
@@ -400,11 +400,85 @@ Test::Expects - Expects...
 
 =head1 SYNOPSIS
 
-  use Test::Expects;
+    use Test::Expects;
+    use Test::More;
+
+    expect($foo)->is(4);
 
 =head1 DESCRIPTION
 
-Test::Expects is
+Test::Expects is a RSpec-ish testing library. It is inspired from expect.js
+
+=head1 VALIDATIONS
+
+=over 4
+
+=item ok() - asserts that the value is truthy or not
+
+    expect(1)->to_be_ok();
+    expect(1)->to_be_ok();
+    expect(0)->to_not_be_ok();
+
+=item be / equal: asserts 'eq' equality
+
+    expect(1)->is(1)
+    expect(1)->is('1')
+    expect(1)->not_to_be(0)
+
+=item a/an: asserts is-a
+
+    use Data::Dumper;
+    expect(Data::Dumper->new([]))->is_a('Data::Dumper');
+
+=item match: asserts String regular expression match
+
+    expect('0.0.5')->to_match(/^[0-9]+\.[0-9]+\.[0-9]+$/);
+
+=item contain: asserts indexOf for an array or string
+
+    expect([1, 2])->to_contain(1);
+    expect('hello world')->to_contain('world');
+
+=item length: asserts array length
+
+    expect([])->to_have_length(0);
+    expect([1,2,3])->to_have_length(3);
+
+=item empty: asserts that an array is empty or not
+
+    expect([])->to_be_empty();
+    expect({})->to_be_empty();
+    expect({ length => 0, duck => 'typing' })->to_be_empty();
+    expect({ my => 'object' })->to_not_be_empty();
+    expect([1,2,3])->to_not_be_empty();
+
+=item key/keys: asserts the presence of a key. Supports the only modifier
+
+    expect({ a=> 'b' })->to_have_key('a');
+    expect({ a=> 'b', c=> 'd' })->to_only_have_keys('a', 'c');
+    expect({ a=> 'b', c=> 'd' })->to_only_have_keys(['a', 'c']);
+    expect({ a=> 'b', c=> 'd' })->to_not_only_have_key('a');
+
+=item throw_exception : asserts that the coderef throws or not when called
+
+    expect(sub { die })->to_throw_exception();
+    expect(sub { die bless [], 'MyExc' })
+        ->to_throw_exception(sub { # get $@
+            my $e = shift;
+            expect($e)->is_a('MyExc');
+    });
+    expect(sub { die "Bad foo" })->to_throw_exception(qr/foo/);
+    expect(sub { 1; })->to_not_throw_exception();
+
+=item above: asserts >
+
+    expect(3)->to_be_above(0);
+
+=item below: asserts <
+
+    expect(0)->to_be_below(3);
+
+=back
 
 =head1 AUTHOR
 

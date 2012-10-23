@@ -58,3 +58,8 @@ Gosuke
 Miyashita
 mysqldiff
 mmm
+truthy
+js
+ish
+indexOf
+RSpec
