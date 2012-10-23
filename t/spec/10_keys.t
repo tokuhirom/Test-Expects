@@ -15,7 +15,7 @@ my $tester = test();
 $tester->out_is(qw/
     1
     1
-    0
+    1
 /);
 
 done_testing;
