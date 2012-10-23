@@ -4,11 +4,8 @@ use Module::Build;
 
 if (-d '.git') {
     eval {
-        require Pod::Markdown;
-        my $pod = Pod::Markdown->new();
-        $pod->parse_from_file('lib/Test/Expects.pm');
-        open my $fh, '>', 'README.md';
-        print $fh $pod->as_markdown;
+        use File::Copy;
+        copy('lib/Test/Expects.pm', 'README.pod');
     }
 }
 
