@@ -2,6 +2,16 @@ use strict;
 use warnings;
 use Module::Build;
 
+if (-d '.git') {
+    eval {
+        require Pod::Markdown;
+        my $pod = Pod::Markdown->new();
+        $pod->parse_from_file('lib/Test/Expects.pm');
+        open my $fh, '>', 'README.md';
+        print $fh $pod->as_markdown;
+    }
+}
+
 my $build = Module::Build->new(
     license              => 'perl',
     dynamic_config       => 0,
@@ -31,3 +41,4 @@ my $build = Module::Build->new(
     create_license => 1,
 );
 $build->create_build_script();
+
