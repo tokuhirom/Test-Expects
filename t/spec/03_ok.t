@@ -13,7 +13,7 @@ my $tester = test();
     expect({})->ok();
     expect(0)->ok();
 
-    expect(0)->to->not->be->ok();
+    expect(0)->to_not_be_ok();
     expect(0)->not_ok();
     expect(1)->not_ok();
 }

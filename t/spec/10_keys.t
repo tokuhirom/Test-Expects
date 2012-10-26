@@ -8,9 +8,9 @@ my $tester = test();
 {
     package sandbox;
     use Test::Expects;
-    expect({ a => 'b' })->to->have->key('a');
-    expect({ a => 'b', c => 'd' })->to->only->have->keys('a', 'c');
-    expect({ a => 'b', c => 'd' })->to->not->only->have->key('a');
+    expect({ a => 'b' })->to_have_key('a');
+    expect({ a => 'b', c => 'd' })->to_only_have_keys('a', 'c');
+    expect({ a => 'b', c => 'd' })->to_not_only_have_key('a');
 }
 $tester->out_is(qw/
     1

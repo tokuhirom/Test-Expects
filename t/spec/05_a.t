@@ -8,13 +8,13 @@ my $tester = test();
 {
     package sandbox;
     use Test::Expects;
-    expect([])->to->be->an('ARRAY');
-    expect([])->to->be->a('ARRAY');
+    expect([])->to_be_an('ARRAY');
+    expect([])->to_be_a('ARRAY');
     expect([])->is_a('ARRAY');
     expect([])->is_a('HASH');
 
-    expect(bless [], 'Foo')->to->be->an('Foo');
-    expect(bless [], 'Foo')->to->be->an('Bar');
+    expect(bless [], 'Foo')->to_be_an('Foo');
+    expect(bless [], 'Foo')->to_be_an('Bar');
 }
 $tester->out_is(
     qw/

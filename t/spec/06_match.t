@@ -8,10 +8,10 @@ my $tester = test();
 {
     package sandbox;
     use Test::Expects;
-    expect('1.1.2')->to->match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
-    expect('hoge11.2')->to->match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
-    expect('1.1.2')->to->not->match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
-    expect('hoge11.2')->to->not->match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
+    expect('1.1.2')->to_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
+    expect('hoge11.2')->to_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
+    expect('1.1.2')->to_not_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
+    expect('hoge11.2')->to_not_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
     expect('1.1.2')->not_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
     expect('hoge11.2')->not_match(qr/^[0-9]+\.[0-9]+\.[0-9]+$/);
 }

@@ -47,12 +47,12 @@ sub equals { goto &equal }
 # expect(true).to.be.ok();
 # expect({}).to.be.ok();
 # expect(0).to.not.be.ok();
-sub ok {
-    my $self = shift;
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $builder = $CLASS->builder;
-    $builder->ok($self->[0]);
-}
+#   sub ok {
+#       my $self = shift;
+#       local $Test::Builder::Level = $Test::Builder::Level + 1;
+#       my $builder = $CLASS->builder;
+#       $builder->ok($self->[0]);
+#   }
 
 sub fail {
     local $Test::Builder::Level = $Test::Builder::Level + 1;

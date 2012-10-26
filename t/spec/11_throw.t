@@ -10,23 +10,23 @@ my $tester = test();
     use Test::Expects;
 
     # no arg
-    expect(sub { die })->to->throw_exception;
-    expect(sub { 1 })->to->throw_exception;
+    expect(sub { die })->to_throw_exception;
+    expect(sub { 1 })->to_throw_exception;
     # code arg
-    expect(sub { die bless [], 'Foo' })->to->throw_exception(sub {
+    expect(sub { die bless [], 'Foo' })->to_throw_exception(sub {
         expect($_)->to_be_a('Foo');
     });
-    expect(sub { die bless [], 'Foo' })->to->throw_exception(sub {
+    expect(sub { die bless [], 'Foo' })->to_throw_exception(sub {
         expect($_)->to_be_a('Bar');
     });
     # regexp arg
-    expect(sub { die })->to->throw_exception(qr/hoge/);
-    expect(sub { die 'hoge' })->to->throw_exception(qr/hoge/);
+    expect(sub { die })->to_throw_exception(qr/hoge/);
+    expect(sub { die 'hoge' })->to_throw_exception(qr/hoge/);
 
     # NOT ---------------------------------
     # no arg
-    expect(sub { die })->to->not->throw_exception;
-    expect(sub { 1 })->to->not->throw_exception;
+    expect(sub { die })->to_not_throw_exception;
+    expect(sub { 1 })->to_not_throw_exception;
 }
 $tester->out_is(qw/
     1 0

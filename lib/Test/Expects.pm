@@ -22,17 +22,13 @@ our $CLASS = __PACKAGE__;
 use Carp ();
 use Try::Tiny;
 
-use constant {
-    ONLY => 1,
-};
-
 sub new {
     my $class = shift;
     @_==1 or Carp::croak("Too much args");
     bless [$_[0]], $class;
 }
 
-sub equal {
+sub to_equal {
     my $self = shift;
     my $expect = shift;
 
@@ -40,6 +36,8 @@ sub equal {
     my $builder = $CLASS->builder;
     $builder->is_eq($self->[0], $expect);
 }
+*to_be = *to_equal;
+*equal = *to_equal;
 sub is { goto &equal }
 sub equals { goto &equal }
 
@@ -53,6 +51,7 @@ sub ok {
     my $builder = $CLASS->builder;
     $builder->ok($self->[0]);
 }
+*to_be_ok = *ok;
 
 sub fail {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -60,31 +59,8 @@ sub fail {
     $builder->fail();
 }
 
-sub to {
-    my $self = shift;
-    $self;
-}
 
-sub be {
-    my $self = shift;
-    if (@_) {
-        $self->equal(@_);
-    } else {
-        $self;
-    }
-}
-
-sub have {
-    my $self = shift;
-    $self;
-}
-
-sub not: method {
-    my $self = shift;
-    return Test::Expects::Impl::Not->new($self->[0]);
-}
-
-sub empty {
+sub to_be_empty {
     my $self = shift;
     if (ref $self->[0] eq 'ARRAY') {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -95,11 +71,11 @@ sub empty {
         my $builder = $CLASS->builder;
         $builder->is_eq(0+keys(%{$self->[0]}), 0);
     } else {
-        Carp::croak("You cannot check 'empty' with this type...");
+        Carp::croak("You cannot check 'to_be_empty' with this type...");
     }
 }
 
-sub length :method {
+sub to_have_length :method {
     my ($self, $len) = @_;
     if (ref $self->[0] eq 'ARRAY') {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -114,16 +90,16 @@ sub length :method {
 
 # expect(5).to.be.a('number');
 # expect(5).is_a('number');
-sub a {
+sub to_be_a {
     my ($self, $type) = @_;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
     $builder->ok(UNIVERSAL::isa($self->[0], $type));
 }
-sub is_a { goto &a }
-sub an { goto &a }
+*to_be_an = *to_be_a;
+sub is_a { goto &to_be_a }
 
-sub match {
+sub to_match {
     my ($self, $regexp) = @_;
     Carp::croak("Missing regexp for match. You man passed // instead of qr//?") unless defined $regexp;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -131,15 +107,7 @@ sub match {
     $builder->like($self->[0], $regexp);
 }
 
-sub only {
-    my $self = shift;
-    @_==0 or Carp::croak();
-
-    $self->[ONLY()]++;
-    $self;
-}
-
-sub key {
+sub to_have_key {
     my ($self, $key) = (shift, shift);
     Carp::croak("Invalid arguments for key") if @_;
     Carp::croak("Invalid arguments for key") if not defined $key;
@@ -155,9 +123,8 @@ sub key {
     }
 }
 
-sub keys {
+sub to_only_have_keys :method {
     my ($self, @key) = (shift, @_);
-    Carp::croak("You may forgot 'only'?") unless $self->[ONLY];
 
     if (ref $self->[0] eq 'HASH') {
         my %copy = %{$self->[0]};
@@ -176,7 +143,7 @@ sub keys {
 
 # expect([1, 2]).to.contain(1);
 # expect('hello world').to.contain('world');
-sub contain {
+sub to_contain {
     my ($self, $stuff) = @_;
     if (ref $self->[0] eq 'ARRAY') {
         my $test = sub {
@@ -195,7 +162,7 @@ sub contain {
     }
 }
 
-sub throw_exception {
+sub to_throw_exception {
     my $self = shift;
     if (@_) {
         if (ref $_[0] eq 'Regexp') {
@@ -244,120 +211,40 @@ sub throw_exception {
     }
 }
 
-our $AUTOLOAD;
-sub AUTOLOAD {
+sub not_to_equal {
     my $self = shift;
-    $AUTOLOAD =~ s/.*:://g;
-    if ($AUTOLOAD =~ s/^(to|have|be|not|only)_//) {
-        my $meth = $1;
-        my $auto = $AUTOLOAD;
-        local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $self->$meth->$auto(@_);
-    } else {
-        Carp::croak("Unknown method: $AUTOLOAD");
-    }
+    my $expect = shift;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $builder = $CLASS->builder;
+    $builder->isnt_eq($self->[0], $expect);
 }
+*not_to_be = *not_to_equal;
+*to_not_be = *not_to_be;
 
-sub above {
+sub to_be_above {
     my ($self, $stuff) = @_;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
     $builder->ok($self->[0] > $stuff);
 }
 
-sub below {
+sub to_be_below {
     my ($self, $stuff) = @_;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
     $builder->ok($self->[0] < $stuff);
 }
 
-sub DESTROY { }
-
-package # hide from pause
-    Test::Expects::Impl::Not;
-
-use parent qw/Test::Builder::Module/;
-
-our $CLASS = __PACKAGE__;
-
-use Try::Tiny;
-
-sub ONLY() { Test::Expects::Impl::ONLY }
-
-sub new {
-    my $class = shift;
-    bless [@_], $class;
-}
-
-our $AUTOLOAD;
-sub AUTOLOAD {
-    my $self = shift;
-    $AUTOLOAD =~ s/.*:://g;
-    if ($AUTOLOAD =~ s/^(to|be|only|have)_//) {
-        my $meth = $1;
-        my $auto = $AUTOLOAD;
-        local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $self->$meth->$auto(@_);
-    } else {
-        Carp::confess("Unknown method: $AUTOLOAD");
-    }
-}
-
-sub DESTROY { }
-
-sub be {
-    my $self = shift;
-    if (@_) {
-        $self->equal(@_);
-    } else {
-        $self;
-    }
-}
-
-sub have {
-    my $self = shift;
-    $self;
-}
-
-sub to {
-    my $self = shift;
-    $self;
-}
-
-sub ok {
-    my $self = shift;
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $builder = $CLASS->builder;
-    $builder->ok(!$self->[0]);
-}
-
-sub only {
-    my $self = shift;
-    @_==0 or Carp::croak();
-
-    $self->[ONLY()]++;
-    $self;
-}
-
-sub equal {
-    my $self = shift;
-    my $expect = shift;
-
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $builder = $CLASS->builder;
-    $builder->isnt_eq($self->[0], $expect);
-}
-
-sub match {
+sub to_not_match {
     my ($self, $regexp) = @_;
     Carp::croak("Missing regexp for match. You man passed // instead of qr//?") unless defined $regexp;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $builder = $CLASS->builder;
     $builder->unlike($self->[0], $regexp);
 }
+*not_match = *to_not_match;
 
-sub empty {
+sub to_not_be_empty {
     my $self = shift;
     if (ref $self->[0] eq 'ARRAY') {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -368,13 +255,12 @@ sub empty {
         my $builder = $CLASS->builder;
         $builder->isnt_eq(0+keys(%{$self->[0]}), 0);
     } else {
-        Carp::croak("You cannot check 'empty' with this type...");
+        Carp::croak("You cannot check 'to_be_empty' with this type...");
     }
 }
 
-sub key {
+sub to_not_only_have_key {
     my ($self, $key) = (shift, shift);
-    Carp::croak("You may forgot 'only'?") unless $self->[ONLY];
 
     if (ref $self->[0] eq 'HASH') {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -389,7 +275,7 @@ sub key {
     }
 }
 
-sub throw_exception {
+sub to_not_throw_exception {
     my $self = shift;
     if (@_) {
         Carp::croak("Invalid method calling. You cannot call not->throw_exception with arguments");
@@ -405,6 +291,14 @@ sub throw_exception {
         $builder->ok(!$err);
     }
 }
+
+sub not_ok {
+    my $self = shift;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $builder = $CLASS->builder;
+    $builder->ok(!$self->[0]);
+}
+*to_not_be_ok = *not_ok;
 
 1;
 __END__
